@@ -1,0 +1,25 @@
+version: "3"
+
+volumes:
+  mongodb:
+
+services:
+  app:
+    container_name: scraper_app
+    restart: unless-stopped
+    build: .
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - CONTRIB_mongodb_dsn=db
+      - CONTRIB_fastapi_app=scraper.main.app
+  db:
+    image: mongo:4.2.6
+    container_name: scraper_db
+    volumes:
+      - mongodb:/data/db
+    restart: unless-stopped
