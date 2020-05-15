@@ -5,4 +5,4 @@ router = APIRouter()
 
 @router.get("/")
 async def index():
-    return 'Welcome to Scraper!'
+    return "Welcome to Scraper!"

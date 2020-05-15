@@ -1,10 +1,10 @@
-from datetime import datetime
 from typing import List, Optional
 
-from fastapi_contrib.db.models import MongoDBModel, MongoDBTimeStampedModel
+from fastapi_contrib.db.models import MongoDBTimeStampedModel
 
 
 class Post(MongoDBTimeStampedModel):
+    __CACHED_POSTS: Optional[List["Post"]] = None
     id: int
     title: str
     url: str
@@ -12,20 +12,12 @@ class Post(MongoDBTimeStampedModel):
     class Meta:
         collection = "posts"
 
+    @classmethod
+    async def all(cls) -> List["Post"]:
+        if cls.__CACHED_POSTS is None:
+            cls.__CACHED_POSTS = await Post.list()
+        return cls.__CACHED_POSTS
 
-_CACHED_POSTS: Optional[List[Post]] = None
-
-
-async def get_all_posts() -> List[Post]:
-    global _CACHED_POSTS
-    if _CACHED_POSTS is None:
-        _CACHED_POSTS = await Post.list()
-    return _CACHED_POSTS
-
-
-async def update_posts_cache():
-    global _CACHED_POSTS
-    _CACHED_POSTS = await Post.list()
-
-
-
+    @classmethod
+    async def update_cache(cls):
+        cls.__CACHED_POSTS = await cls.list()
